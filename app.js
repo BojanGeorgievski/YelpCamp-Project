@@ -2,7 +2,6 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -14,15 +13,15 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user");
-const mongoSanitize = require('express-mongo-sanitize');
-const helmet = require('helmet')
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
 const userRoutes = require("./routes/users");
 const campgroundRoutes = require("./routes/campgrounds");
 const reviewRoutes = require("./routes/reviews");
 
-const MongoStore = require('connect-mongo');
+const MongoStore = require("connect-mongo");
 
-const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/yelp-camp"
+const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/yelp-camp";
 
 mongoose.connect(dbUrl);
 
@@ -43,22 +42,22 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(mongoSanitize());
 
-const secret = process.env.SECRET || 'thisshouldbeabettersecret';
+const secret = process.env.SECRET;
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
   secret,
-  touchAfter: 24 * 60 * 60
+  touchAfter: 24 * 60 * 60,
 });
 
-store.on("error",function(e){
-    console.log('SESSION STORE ERROR',e)
-})
+store.on("error", function (e) {
+  console.log("SESSION STORE ERROR", e);
+});
 
 //COOKIE SESSION
 const sessionConfig = {
   store,
-  name: 'session',
+  name: "session",
   secret,
   resave: false,
   saveUninitialized: true,
@@ -67,7 +66,7 @@ const sessionConfig = {
     // secure: true,
     expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
     maxAge: 1000 * 60 * 60 * 24 * 7,
-  }
+  },
 };
 
 app.use(session(sessionConfig));
@@ -82,7 +81,7 @@ const scriptSrcUrls = [
   "https://cdnjs.cloudflare.com/",
   "https://cdn.jsdelivr.net",
 ];
-//This is the array that needs added to
+
 const styleSrcUrls = [
   "https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css",
   "https://kit-free.fontawesome.com/",
@@ -101,22 +100,22 @@ const connectSrcUrls = [
 const fontSrcUrls = [];
 app.use(
   helmet.contentSecurityPolicy({
-      directives: {
-          defaultSrc: [],
-          connectSrc: ["'self'", ...connectSrcUrls],
-          scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
-          styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
-          workerSrc: ["'self'", "blob:"],
-          objectSrc: [],
-          imgSrc: [
-              "'self'",
-              "blob:",
-              "data:",
-              "https://res.cloudinary.com/dbhm7ghi6/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
-              "https://images.unsplash.com/",
-          ],
-          fontSrc: ["'self'", ...fontSrcUrls],
-      },
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", "blob:"],
+      objectSrc: [],
+      imgSrc: [
+        "'self'",
+        "blob:",
+        "data:",
+        "https://res.cloudinary.com/dbhm7ghi6/",
+        "https://images.unsplash.com/",
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls],
+    },
   })
 );
 
